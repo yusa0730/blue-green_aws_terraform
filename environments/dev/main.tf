@@ -4,10 +4,6 @@ locals {
   region       = "ap-northeast-1"
 }
 
-provider "aws" {
-  region = local.region
-}
-
 module "vpc" {
   source       = "../../modules/vpc"
   project_name = local.project_name
@@ -20,10 +16,10 @@ output "vpc" {
 
 module "subnet" {
   source       = "../../modules/subnet"
-  vpc_id       = module.vpc.vpc_id
   project_name = local.project_name
   env          = local.env
   region       = local.region
+  vpc_id       = module.vpc.vpc_id
 }
 
 output "subnet" {
@@ -32,9 +28,9 @@ output "subnet" {
 
 module "route_table" {
   source                  = "../../modules/route_table"
-  vpc_id                  = module.vpc.vpc_id
   project_name            = local.project_name
   env                     = local.env
+  vpc_id                  = module.vpc.vpc_id
   alb_private_subnet_a_id = module.subnet.alb_private_subnet_a_id
   alb_private_subnet_c_id = module.subnet.alb_private_subnet_c_id
   alb_private_subnet_d_id = module.subnet.alb_private_subnet_d_id
@@ -45,4 +41,15 @@ module "route_table" {
 
 output "route_table" {
   value = module.route_table
+}
+
+module "vpc_endpoint" {
+  source                                  = "../../modules/vpc_endpoint"
+  project_name                            = local.project_name
+  env                                     = local.env
+  region                                  = local.region
+  vpc_id                                  = module.vpc.vpc_id
+  private_table_id                        = module.route_table.private_table_id
+  vpc_endpoint_to_ecr_private_subnet_a_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_a_id
+  vpc_endpoint_to_ecr_private_subnet_c_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_c_id
 }
