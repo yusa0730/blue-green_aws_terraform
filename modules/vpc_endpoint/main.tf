@@ -29,7 +29,7 @@ resource "aws_vpc_endpoint" "to_ecr_api" {
   service_name        = "com.amazonaws.${var.region}.ecr.api"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  # security_group_ids = []
+  security_group_ids  = ["${var.sg_vpc_endpoint_id}"]
   subnet_ids = [
     var.vpc_endpoint_to_ecr_private_subnet_a_id,
     var.vpc_endpoint_to_ecr_private_subnet_c_id
@@ -60,7 +60,7 @@ resource "aws_vpc_endpoint" "to_ecr_dkr" {
   service_name        = "com.amazonaws.${var.region}.ecr.dkr"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  # security_group_ids = []
+  security_group_ids  = ["${var.sg_vpc_endpoint_id}"]
   subnet_ids = [
     var.vpc_endpoint_to_ecr_private_subnet_a_id,
     var.vpc_endpoint_to_ecr_private_subnet_c_id

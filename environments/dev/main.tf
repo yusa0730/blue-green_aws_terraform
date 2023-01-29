@@ -26,6 +26,11 @@ output "subnet" {
   value = module.subnet
 }
 
+module "security_group" {
+  source = "../../modules/security_group"
+  vpc_id = module.vpc.vpc_id
+}
+
 module "route_table" {
   source                  = "../../modules/route_table"
   project_name            = local.project_name
@@ -52,4 +57,5 @@ module "vpc_endpoint" {
   private_table_id                        = module.route_table.private_table_id
   vpc_endpoint_to_ecr_private_subnet_a_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_a_id
   vpc_endpoint_to_ecr_private_subnet_c_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_c_id
+  sg_vpc_endpoint_id                      = module.security_group.sg_vpc_endpoint_id
 }
