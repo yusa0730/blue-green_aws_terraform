@@ -10,20 +10,12 @@ module "vpc" {
   env          = local.env
 }
 
-output "vpc" {
-  value = module.vpc
-}
-
 module "subnet" {
   source       = "../../modules/subnet"
   project_name = local.project_name
   env          = local.env
   region       = local.region
   vpc_id       = module.vpc.vpc_id
-}
-
-output "subnet" {
-  value = module.subnet
 }
 
 module "security_group" {
@@ -42,10 +34,6 @@ module "route_table" {
   ecs_private_subnet_a_id = module.subnet.ecs_private_subnet_a_id
   ecs_private_subnet_c_id = module.subnet.ecs_private_subnet_c_id
   ecs_private_subnet_d_id = module.subnet.ecs_private_subnet_d_id
-}
-
-output "route_table" {
-  value = module.route_table
 }
 
 module "vpc_endpoint" {
