@@ -11,11 +11,24 @@ module "vpc" {
 }
 
 module "subnet" {
-  source       = "../../modules/subnet"
+  source       = "../../modules/vpc/subnet"
   project_name = local.project_name
   env          = local.env
   region       = local.region
   vpc_id       = module.vpc.vpc_id
+}
+
+module "route_table" {
+  source                  = "../../modules/vpc/route_table"
+  project_name            = local.project_name
+  env                     = local.env
+  vpc_id                  = module.vpc.vpc_id
+  alb_private_subnet_a_id = module.subnet.alb_private_subnet_a_id
+  alb_private_subnet_c_id = module.subnet.alb_private_subnet_c_id
+  alb_private_subnet_d_id = module.subnet.alb_private_subnet_d_id
+  ecs_private_subnet_a_id = module.subnet.ecs_private_subnet_a_id
+  ecs_private_subnet_c_id = module.subnet.ecs_private_subnet_c_id
+  ecs_private_subnet_d_id = module.subnet.ecs_private_subnet_d_id
 }
 
 module "security_group_alb" {
@@ -62,19 +75,6 @@ module "security_group_rule" {
   sg_front_container_id = module.security_group_front_container.sg_front_container_id
   sg_management_id      = module.security_group_management.sg_management_id
   sg_vpc_endpoint_id    = module.security_group_vpc_endpoint.sg_vpc_endpoint_id
-}
-
-module "route_table" {
-  source                  = "../../modules/route_table"
-  project_name            = local.project_name
-  env                     = local.env
-  vpc_id                  = module.vpc.vpc_id
-  alb_private_subnet_a_id = module.subnet.alb_private_subnet_a_id
-  alb_private_subnet_c_id = module.subnet.alb_private_subnet_c_id
-  alb_private_subnet_d_id = module.subnet.alb_private_subnet_d_id
-  ecs_private_subnet_a_id = module.subnet.ecs_private_subnet_a_id
-  ecs_private_subnet_c_id = module.subnet.ecs_private_subnet_c_id
-  ecs_private_subnet_d_id = module.subnet.ecs_private_subnet_d_id
 }
 
 module "vpc_endpoint" {
