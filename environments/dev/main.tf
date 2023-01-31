@@ -47,3 +47,10 @@ module "vpc_endpoint" {
   vpc_endpoint_to_ecr_private_subnet_c_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_c_id
   sg_vpc_endpoint_id                      = module.security_group.sg_vpc_endpoint_id
 }
+
+module "vpc_endpoint_policy" {
+  source                     = "../../modules/vpc_endpoint/policy"
+  vpc_endpoint_to_s3_id      = module.vpc_endpoint.vpc_endpoint_to_s3_id
+  vpc_endpoint_to_ecr_api_id = module.vpc_endpoint.vpc_endpoint_to_ecr_api_id
+  vpc_endpoint_to_ecr_dkr_id = module.vpc_endpoint.vpc_endpoint_to_ecr_dkr_id
+}
