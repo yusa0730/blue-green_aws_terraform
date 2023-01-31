@@ -18,9 +18,50 @@ module "subnet" {
   vpc_id       = module.vpc.vpc_id
 }
 
-module "security_group" {
-  source = "../../modules/security_group"
+module "security_group_alb" {
+  source = "../../modules/security_group/alb"
   vpc_id = module.vpc.vpc_id
+}
+
+module "security_group_container" {
+  source = "../../modules/security_group/container"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "security_group_db" {
+  source = "../../modules/security_group/db"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "security_group_front_container" {
+  source = "../../modules/security_group/front_container"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "security_group_ingress" {
+  source = "../../modules/security_group/ingress"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "security_group_management" {
+  source = "../../modules/security_group/management"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "security_group_vpc_endpoint" {
+  source = "../../modules/security_group/vpc_endpoint"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "security_group_rule" {
+  source                = "../../modules/security_group_rule"
+  sg_ingress_id         = module.security_group_ingress.sg_ingress_id
+  sg_alb_internal_id    = module.security_group_alb.sg_alb_internal_id
+  sg_container_id       = module.security_group_container.sg_container_id
+  sg_db_id              = module.security_group_db.sg_db_id
+  sg_front_container_id = module.security_group_front_container.sg_front_container_id
+  sg_management_id      = module.security_group_management.sg_management_id
+  sg_vpc_endpoint_id    = module.security_group_vpc_endpoint.sg_vpc_endpoint_id
 }
 
 module "route_table" {
@@ -45,7 +86,7 @@ module "vpc_endpoint" {
   private_table_id                        = module.route_table.private_table_id
   vpc_endpoint_to_ecr_private_subnet_a_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_a_id
   vpc_endpoint_to_ecr_private_subnet_c_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_c_id
-  sg_vpc_endpoint_id                      = module.security_group.sg_vpc_endpoint_id
+  sg_vpc_endpoint_id                      = module.security_group_vpc_endpoint.sg_vpc_endpoint_id
 }
 
 module "vpc_endpoint_policy" {
