@@ -10,12 +10,68 @@ module "vpc" {
   env          = local.env
 }
 
-module "subnet" {
-  source       = "../../modules/vpc/subnet"
-  project_name = local.project_name
-  env          = local.env
-  region       = local.region
-  vpc_id       = module.vpc.vpc_id
+module "alb_private_subnet_a" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.10.0/24"
+  az         = "${local.region}a"
+  name       = "${local.project_name}-${local.env}-alb-subnet-private-a"
+}
+
+module "alb_private_subnet_c" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.20.0/24"
+  az         = "${local.region}c"
+  name       = "${local.project_name}-${local.env}-alb-subnet-private-c"
+}
+
+module "alb_private_subnet_d" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.30.0/24"
+  az         = "${local.region}d"
+  name       = "${local.project_name}-${local.env}-alb-subnet-private-d"
+}
+
+module "ecs_private_subnet_a" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.40.0/24"
+  az         = "${local.region}a"
+  name       = "${local.project_name}-${local.env}-ecs-subnet-private-a"
+}
+
+module "ecs_private_subnet_c" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.50.0/24"
+  az         = "${local.region}c"
+  name       = "${local.project_name}-${local.env}-ecs-subnet-private-c"
+}
+
+module "ecs_private_subnet_d" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.60.0/24"
+  az         = "${local.region}d"
+  name       = "${local.project_name}-${local.env}-ecs-subnet-private-d"
+}
+
+module "vpc_endpoint_to_ecr_private_subnet_a" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.248.0/24"
+  az         = "${local.region}a"
+  name       = "${local.project_name}-${local.env}-vpc-endpoint-to-ecr-subnet-private-a"
+}
+
+module "vpc_endpoint_to_ecr_private_subnet_c" {
+  source     = "../../modules/vpc/subnet"
+  vpc_id     = module.vpc.vpc_id
+  cidr_block = "10.0.249.0/24"
+  az         = "${local.region}c"
+  name       = "${local.project_name}-${local.env}-vpc-endpoint-to-ecr-subnet-private-c"
 }
 
 module "route_table" {
@@ -23,12 +79,12 @@ module "route_table" {
   project_name            = local.project_name
   env                     = local.env
   vpc_id                  = module.vpc.vpc_id
-  alb_private_subnet_a_id = module.subnet.alb_private_subnet_a_id
-  alb_private_subnet_c_id = module.subnet.alb_private_subnet_c_id
-  alb_private_subnet_d_id = module.subnet.alb_private_subnet_d_id
-  ecs_private_subnet_a_id = module.subnet.ecs_private_subnet_a_id
-  ecs_private_subnet_c_id = module.subnet.ecs_private_subnet_c_id
-  ecs_private_subnet_d_id = module.subnet.ecs_private_subnet_d_id
+  alb_private_subnet_a_id = module.alb_private_subnet_a.subnet_id
+  alb_private_subnet_c_id = module.alb_private_subnet_c.subnet_id
+  alb_private_subnet_d_id = module.alb_private_subnet_d.subnet_id
+  ecs_private_subnet_a_id = module.ecs_private_subnet_a.subnet_id
+  ecs_private_subnet_c_id = module.ecs_private_subnet_c.subnet_id
+  ecs_private_subnet_d_id = module.ecs_private_subnet_d.subnet_id
 }
 
 module "security_group_alb" {
@@ -84,8 +140,8 @@ module "vpc_endpoint" {
   region                                  = local.region
   vpc_id                                  = module.vpc.vpc_id
   private_table_id                        = module.route_table.private_table_id
-  vpc_endpoint_to_ecr_private_subnet_a_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_a_id
-  vpc_endpoint_to_ecr_private_subnet_c_id = module.subnet.vpc_endpoint_to_ecr_private_subnet_c_id
+  vpc_endpoint_to_ecr_private_subnet_a_id = module.vpc_endpoint_to_ecr_private_subnet_a.subnet_id
+  vpc_endpoint_to_ecr_private_subnet_c_id = module.vpc_endpoint_to_ecr_private_subnet_c.subnet_id
   sg_vpc_endpoint_id                      = module.security_group_vpc_endpoint.sg_vpc_endpoint_id
 }
 

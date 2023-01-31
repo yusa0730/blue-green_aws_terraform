@@ -1,4 +1,4 @@
 variable "vpc_id" {}
-variable "env" {}
-variable "project_name" {}
-variable "region" {}
+variable "cidr_block" {}
+variable "az" {}
+variable "name" {}
