@@ -134,15 +134,17 @@ module "security_group_rule" {
 }
 
 module "vpc_endpoint" {
-  source                                  = "../../modules/vpc_endpoint"
-  project_name                            = local.project_name
-  env                                     = local.env
-  region                                  = local.region
-  vpc_id                                  = module.vpc.vpc_id
-  private_table_id                        = module.route_table.private_table_id
-  vpc_endpoint_to_ecr_private_subnet_a_id = module.vpc_endpoint_to_ecr_private_subnet_a.subnet_id
-  vpc_endpoint_to_ecr_private_subnet_c_id = module.vpc_endpoint_to_ecr_private_subnet_c.subnet_id
-  sg_vpc_endpoint_id                      = module.security_group_vpc_endpoint.sg_vpc_endpoint_id
+  source           = "../../modules/vpc_endpoint"
+  project_name     = local.project_name
+  env              = local.env
+  region           = local.region
+  vpc_id           = module.vpc.vpc_id
+  private_table_id = module.route_table.private_table_id
+  vpc_endpoint_to_ecr_subnet_ids = [
+    module.vpc_endpoint_to_ecr_private_subnet_a.subnet_id,
+    module.vpc_endpoint_to_ecr_private_subnet_c.subnet_id
+  ]
+  sg_vpc_endpoint_id = module.security_group_vpc_endpoint.sg_vpc_endpoint_id
 }
 
 module "vpc_endpoint_policy" {
