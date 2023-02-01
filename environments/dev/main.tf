@@ -123,7 +123,7 @@ module "security_group_vpc_endpoint" {
 }
 
 module "security_group_rule" {
-  source                = "../../modules/security_group_rule"
+  source                = "../../modules/security_group/security_group_rule"
   sg_ingress_id         = module.security_group_ingress.sg_ingress_id
   sg_alb_internal_id    = module.security_group_alb.sg_alb_internal_id
   sg_container_id       = module.security_group_container.sg_container_id
