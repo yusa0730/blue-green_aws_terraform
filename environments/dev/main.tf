@@ -1,5 +1,5 @@
 locals {
-  project_name = "ishizawa-terraform-test"
+  project_name = "terraform-test"
   env          = "dev"
   region       = "ap-northeast-1"
 }
@@ -139,7 +139,6 @@ module "vpc_endpoint" {
   env          = local.env
   region       = local.region
   vpc_id       = module.vpc.vpc_id
-  # private_table_id = module.route_table.private_table_id
   route_table_ids = [
     module.route_table.private_table_id
   ]
@@ -157,4 +156,48 @@ module "vpc_endpoint_policy" {
   vpc_endpoint_to_s3_id      = module.vpc_endpoint.vpc_endpoint_to_s3_id
   vpc_endpoint_to_ecr_api_id = module.vpc_endpoint.vpc_endpoint_to_ecr_api_id
   vpc_endpoint_to_ecr_dkr_id = module.vpc_endpoint.vpc_endpoint_to_ecr_dkr_id
+}
+
+module "s3" {
+  source       = "../../modules/s3"
+  project_name = local.project_name
+  env          = local.env
+}
+
+module "s3_bucket_acl" {
+  source                    = "../../modules/s3/bucket_acl"
+  alb_internal_s3_bucket_id = module.s3.alb_internal_s3_bucket_id
+}
+
+module "alb" {
+  source             = "../../modules/alb"
+  project_name       = local.project_name
+  env                = local.env
+  security_group_ids = []
+  security_group_internal_ids = [
+    module.security_group_alb.sg_alb_internal_id
+  ]
+  public_subnet_ids = []
+  private_subnet_ids = [
+    module.alb_private_subnet_a.subnet_id,
+    module.alb_private_subnet_c.subnet_id,
+    module.alb_private_subnet_d.subnet_id
+  ]
+  // public用のalbはまだ作成して途中なので暫定処置
+  s3_alb_bucket          = module.s3.alb_internal_s3_bucket_id
+  s3_alb_internal_bucket = module.s3.alb_internal_s3_bucket_id
+}
+
+module "alb_target_group" {
+  source       = "../../modules/alb/target_group"
+  project_name = local.project_name
+  env          = local.env
+  vpc_id       = module.vpc.vpc_id
+}
+
+module "alb_listener" {
+  source                 = "../../modules/alb/listener"
+  alb_internal_arn       = module.alb.alb_internal_arn
+  target_group_blue_arn  = module.alb_target_group.target_group_blue_arn
+  target_group_green_arn = module.alb_target_group.target_group_green_arn
 }
