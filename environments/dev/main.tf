@@ -158,15 +158,28 @@ module "vpc_endpoint_policy" {
   vpc_endpoint_to_ecr_dkr_id = module.vpc_endpoint.vpc_endpoint_to_ecr_dkr_id
 }
 
-module "s3" {
-  source       = "../../modules/s3"
-  project_name = local.project_name
-  env          = local.env
+module "s3_bucket_of_alb_internal" {
+  source            = "../../modules/s3"
+  bucket_name       = "${local.project_name}-${local.env}-alb-internal"
+  versioning_status = "Enabled"
+  lifecycle_id      = "alb_internal_s3_bucket_log"
+  expiration_days   = 90
+  lifecycle_status  = "Enabled"
+  sse_algorithm     = "AES256"
 }
 
-module "s3_bucket_acl" {
-  source                    = "../../modules/s3/bucket_acl"
-  alb_internal_s3_bucket_id = module.s3.alb_internal_s3_bucket_id
+module "s3_bucket_acl_of_alb_internal" {
+  source           = "../../modules/s3/bucket_acl"
+  s3_bucket_id     = module.s3_bucket_of_alb_internal.s3_bucket_id
+  grantee_type     = "CanonicalUser"
+  grant_permission = "READ_ACP"
+}
+
+module "s3_bucket_acl_of_alb_internal2" {
+  source           = "../../modules/s3/bucket_acl"
+  s3_bucket_id     = module.s3_bucket_of_alb_internal.s3_bucket_id
+  grantee_type     = "CanonicalUser"
+  grant_permission = "WRITE_ACP"
 }
 
 module "alb" {
@@ -184,8 +197,8 @@ module "alb" {
     module.alb_private_subnet_d.subnet_id
   ]
   // public用のalbはまだ作成して途中なので暫定処置
-  s3_alb_bucket          = module.s3.alb_internal_s3_bucket_id
-  s3_alb_internal_bucket = module.s3.alb_internal_s3_bucket_id
+  s3_alb_bucket          = module.s3_bucket_of_alb_internal.s3_bucket_id
+  s3_alb_internal_bucket = module.s3_bucket_of_alb_internal.s3_bucket_id
 }
 
 module "alb_target_group" {
