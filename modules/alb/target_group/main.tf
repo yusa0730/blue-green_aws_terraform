@@ -1,39 +1,19 @@
-resource "aws_lb_target_group" "blue" {
-  name        = "${var.project_name}-${var.env}-alb-blue-tg"
-  port        = 80
-  protocol    = "HTTP"
-  target_type = "ip"
+resource "aws_lb_target_group" "main" {
+  name        = var.target_group_name
+  port        = var.target_group_port
+  protocol    = var.target_group_protocol
+  target_type = var.target_group_target_type
   vpc_id      = var.vpc_id
 
   health_check {
-    enabled             = true
-    healthy_threshold   = 3
-    interval            = "30"
-    matcher             = "200"
-    path                = "/health"
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    timeout             = "5"
-    unhealthy_threshold = "2"
-  }
-}
-
-resource "aws_lb_target_group" "green" {
-  name        = "${var.project_name}-${var.env}-alb-green-tg"
-  port        = 10080
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = var.vpc_id
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 3
-    interval            = "30"
-    matcher             = "200"
-    path                = "/health"
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    timeout             = "5"
-    unhealthy_threshold = "2"
+    enabled             = var.is_enabled_to_health_check
+    healthy_threshold   = var.healthy_threshold_count
+    interval            = var.health_check_interval
+    matcher             = var.health_check_matcher
+    path                = var.health_check_path
+    port                = var.health_check_port
+    protocol            = var.health_check_protocol
+    timeout             = var.health_check_timeout
+    unhealthy_threshold = var.health_check_unhealthy_threshold_count
   }
 }

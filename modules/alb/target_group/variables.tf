@@ -1,3 +1,14 @@
-variable "project_name" {}
-variable "env" {}
+variable "target_group_name" {}
+variable "target_group_port" {}
+variable "target_group_protocol" {}
+variable "target_group_target_type" {}
+variable "is_enabled_to_health_check" {}
 variable "vpc_id" {}
+variable "healthy_threshold_count" {}
+variable "health_check_interval" {}
+variable "health_check_matcher" {}
+variable "health_check_path" {}
+variable "health_check_port" {}
+variable "health_check_protocol" {}
+variable "health_check_timeout" {}
+variable "health_check_unhealthy_threshold_count" {}

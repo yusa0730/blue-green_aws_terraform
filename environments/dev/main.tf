@@ -182,35 +182,85 @@ module "s3_bucket_acl_of_alb_internal2" {
   grant_permission = "WRITE_ACP"
 }
 
-module "alb" {
-  source             = "../../modules/alb"
-  project_name       = local.project_name
-  env                = local.env
-  security_group_ids = []
-  security_group_internal_ids = [
+# module "public_alb" {
+#   source                            = "../../modules/alb"
+#   alb_name                          = "${local.project_name}-${local.env}-alb"
+#   security_group_ids                = []
+#   subnet_ids                        = []
+#   is_enabled_to_deletion_protection = false
+#   s3_alb_bucket                     = ""
+#   access_logs_prefix                = "alb"
+#   is_enabled_to_access_logs         = true
+# }
+
+module "internal_alb" {
+  source      = "../../modules/alb"
+  alb_name    = "${local.project_name}-${local.env}-internal-alb"
+  is_internal = true
+  security_group_ids = [
     module.security_group_alb.sg_alb_internal_id
   ]
-  public_subnet_ids = []
-  private_subnet_ids = [
+  subnet_ids = [
     module.alb_private_subnet_a.subnet_id,
     module.alb_private_subnet_c.subnet_id,
     module.alb_private_subnet_d.subnet_id
   ]
-  // public用のalbはまだ作成して途中なので暫定処置
-  s3_alb_bucket          = module.s3_bucket_of_alb_internal.s3_bucket_id
-  s3_alb_internal_bucket = module.s3_bucket_of_alb_internal.s3_bucket_id
+  is_enabled_to_deletion_protection = false
+  s3_alb_bucket                     = module.s3_bucket_of_alb_internal.s3_bucket_id
+  access_logs_prefix                = "internal_alb"
+  is_enabled_to_access_logs         = true
 }
 
-module "alb_target_group" {
-  source       = "../../modules/alb/target_group"
-  project_name = local.project_name
-  env          = local.env
-  vpc_id       = module.vpc.vpc_id
+module "internal_alb_target_group_blue" {
+  source                                 = "../../modules/alb/target_group"
+  target_group_name                      = "${local.project_name}-${local.env}-alb-blue-tg"
+  target_group_port                      = 80
+  target_group_protocol                  = "HTTP"
+  target_group_target_type               = "ip"
+  vpc_id                                 = module.vpc.vpc_id
+  is_enabled_to_health_check             = true
+  healthy_threshold_count                = 3
+  health_check_interval                  = "30"
+  health_check_matcher                   = "200"
+  health_check_path                      = "/health"
+  health_check_port                      = "traffic-port"
+  health_check_protocol                  = "HTTP"
+  health_check_timeout                   = "5"
+  health_check_unhealthy_threshold_count = "2"
 }
 
-module "alb_listener" {
-  source                 = "../../modules/alb/listener"
-  alb_internal_arn       = module.alb.alb_internal_arn
-  target_group_blue_arn  = module.alb_target_group.target_group_blue_arn
-  target_group_green_arn = module.alb_target_group.target_group_green_arn
+module "internal_alb_target_group_green" {
+  source                                 = "../../modules/alb/target_group"
+  target_group_name                      = "${local.project_name}-${local.env}-alb-green-tg"
+  target_group_port                      = 10080
+  target_group_protocol                  = "HTTP"
+  target_group_target_type               = "ip"
+  vpc_id                                 = module.vpc.vpc_id
+  is_enabled_to_health_check             = true
+  healthy_threshold_count                = 3
+  health_check_interval                  = "30"
+  health_check_matcher                   = "200"
+  health_check_path                      = "/health"
+  health_check_port                      = "traffic-port"
+  health_check_protocol                  = "HTTP"
+  health_check_timeout                   = "5"
+  health_check_unhealthy_threshold_count = "2"
+}
+
+module "internal_alb_listener_blue" {
+  source            = "../../modules/alb/listener"
+  load_balancer_arn = module.internal_alb.alb_arn
+  port_number       = 80
+  protocol          = "HTTP"
+  action_type       = "forward"
+  target_group_arn  = module.internal_alb_target_group_blue.target_group_arn
+}
+
+module "internal_alb_listener_green" {
+  source            = "../../modules/alb/listener"
+  load_balancer_arn = module.internal_alb.alb_arn
+  port_number       = 10080
+  protocol          = "HTTP"
+  action_type       = "forward"
+  target_group_arn  = module.internal_alb_target_group_green.target_group_arn
 }

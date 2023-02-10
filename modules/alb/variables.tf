@@ -1,17 +1,13 @@
-variable "project_name" {}
-variable "env" {}
+variable "alb_name" {}
+variable "is_internal" {}
 variable "security_group_ids" {
   type = list(any)
 }
-variable "security_group_internal_ids" {
+variable "subnet_ids" {
   type = list(any)
 }
-variable "public_subnet_ids" {
-  type = list(any)
-}
-variable "private_subnet_ids" {
-  type = list(any)
-}
-variable "s3_alb_bucket" {}
-variable "s3_alb_internal_bucket" {}
 
+variable "is_enabled_to_deletion_protection" {}
+variable "s3_alb_bucket" {}
+variable "access_logs_prefix" {}
+variable "is_enabled_to_access_logs" {}
