@@ -205,54 +205,26 @@ module "internal_alb" {
     module.alb_private_subnet_c.subnet_id,
     module.alb_private_subnet_d.subnet_id
   ]
-  is_enabled_to_deletion_protection = false
-  s3_alb_bucket                     = module.s3_bucket_of_alb_internal.s3_bucket_id
-  access_logs_prefix                = "internal_alb"
-  is_enabled_to_access_logs         = true
+  s3_alb_bucket      = module.s3_bucket_of_alb_internal.s3_bucket_id
+  access_logs_prefix = "internal_alb"
 }
 
 module "internal_alb_target_group_blue" {
-  source                                 = "../../modules/alb/target_group"
-  target_group_name                      = "${local.project_name}-${local.env}-alb-blue-tg"
-  target_group_port                      = 80
-  target_group_protocol                  = "HTTP"
-  target_group_target_type               = "ip"
-  vpc_id                                 = module.vpc.vpc_id
-  is_enabled_to_health_check             = true
-  healthy_threshold_count                = 3
-  health_check_interval                  = "30"
-  health_check_matcher                   = "200"
-  health_check_path                      = "/health"
-  health_check_port                      = "traffic-port"
-  health_check_protocol                  = "HTTP"
-  health_check_timeout                   = "5"
-  health_check_unhealthy_threshold_count = "2"
+  source            = "../../modules/alb/target_group"
+  target_group_name = "${local.project_name}-${local.env}-alb-blue-tg"
+  vpc_id            = module.vpc.vpc_id
 }
 
 module "internal_alb_target_group_green" {
-  source                                 = "../../modules/alb/target_group"
-  target_group_name                      = "${local.project_name}-${local.env}-alb-green-tg"
-  target_group_port                      = 10080
-  target_group_protocol                  = "HTTP"
-  target_group_target_type               = "ip"
-  vpc_id                                 = module.vpc.vpc_id
-  is_enabled_to_health_check             = true
-  healthy_threshold_count                = 3
-  health_check_interval                  = "30"
-  health_check_matcher                   = "200"
-  health_check_path                      = "/health"
-  health_check_port                      = "traffic-port"
-  health_check_protocol                  = "HTTP"
-  health_check_timeout                   = "5"
-  health_check_unhealthy_threshold_count = "2"
+  source            = "../../modules/alb/target_group"
+  target_group_name = "${local.project_name}-${local.env}-alb-green-tg"
+  target_group_port = 10080
+  vpc_id            = module.vpc.vpc_id
 }
 
 module "internal_alb_listener_blue" {
   source            = "../../modules/alb/listener"
   load_balancer_arn = module.internal_alb.alb_arn
-  port_number       = 80
-  protocol          = "HTTP"
-  action_type       = "forward"
   target_group_arn  = module.internal_alb_target_group_blue.target_group_arn
 }
 
@@ -260,7 +232,5 @@ module "internal_alb_listener_green" {
   source            = "../../modules/alb/listener"
   load_balancer_arn = module.internal_alb.alb_arn
   port_number       = 10080
-  protocol          = "HTTP"
-  action_type       = "forward"
   target_group_arn  = module.internal_alb_target_group_green.target_group_arn
 }
