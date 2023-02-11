@@ -1,5 +1,5 @@
 locals {
-  project_name = "ishizawa-terraform-test"
+  project_name = "terraform-test"
   env          = "dev"
   region       = "ap-northeast-1"
 }
@@ -139,7 +139,6 @@ module "vpc_endpoint" {
   env          = local.env
   region       = local.region
   vpc_id       = module.vpc.vpc_id
-  # private_table_id = module.route_table.private_table_id
   route_table_ids = [
     module.route_table.private_table_id
   ]
@@ -157,4 +156,81 @@ module "vpc_endpoint_policy" {
   vpc_endpoint_to_s3_id      = module.vpc_endpoint.vpc_endpoint_to_s3_id
   vpc_endpoint_to_ecr_api_id = module.vpc_endpoint.vpc_endpoint_to_ecr_api_id
   vpc_endpoint_to_ecr_dkr_id = module.vpc_endpoint.vpc_endpoint_to_ecr_dkr_id
+}
+
+module "s3_bucket_of_alb_internal" {
+  source            = "../../modules/s3"
+  bucket_name       = "${local.project_name}-${local.env}-alb-internal"
+  versioning_status = "Enabled"
+  lifecycle_id      = "alb_internal_s3_bucket_log"
+  expiration_days   = 90
+  lifecycle_status  = "Enabled"
+  sse_algorithm     = "AES256"
+}
+
+module "s3_bucket_acl_of_alb_internal" {
+  source           = "../../modules/s3/bucket_acl"
+  s3_bucket_id     = module.s3_bucket_of_alb_internal.s3_bucket_id
+  grantee_type     = "CanonicalUser"
+  grant_permission = "READ_ACP"
+}
+
+module "s3_bucket_acl_of_alb_internal2" {
+  source           = "../../modules/s3/bucket_acl"
+  s3_bucket_id     = module.s3_bucket_of_alb_internal.s3_bucket_id
+  grantee_type     = "CanonicalUser"
+  grant_permission = "WRITE_ACP"
+}
+
+# module "public_alb" {
+#   source                            = "../../modules/alb"
+#   alb_name                          = "${local.project_name}-${local.env}-alb"
+#   security_group_ids                = []
+#   subnet_ids                        = []
+#   is_enabled_to_deletion_protection = false
+#   s3_alb_bucket                     = ""
+#   access_logs_prefix                = "alb"
+#   is_enabled_to_access_logs         = true
+# }
+
+module "internal_alb" {
+  source      = "../../modules/alb"
+  alb_name    = "${local.project_name}-${local.env}-internal-alb"
+  is_internal = true
+  security_group_ids = [
+    module.security_group_alb.sg_alb_internal_id
+  ]
+  subnet_ids = [
+    module.alb_private_subnet_a.subnet_id,
+    module.alb_private_subnet_c.subnet_id,
+    module.alb_private_subnet_d.subnet_id
+  ]
+  s3_alb_bucket      = module.s3_bucket_of_alb_internal.s3_bucket_id
+  access_logs_prefix = "internal_alb"
+}
+
+module "internal_alb_target_group_blue" {
+  source            = "../../modules/alb/target_group"
+  target_group_name = "${local.project_name}-${local.env}-alb-blue-tg"
+  vpc_id            = module.vpc.vpc_id
+}
+
+module "internal_alb_target_group_green" {
+  source            = "../../modules/alb/target_group"
+  target_group_name = "${local.project_name}-${local.env}-alb-green-tg"
+  target_group_port = 10080
+  vpc_id            = module.vpc.vpc_id
+}
+
+module "internal_alb_listener_blue" {
+  source            = "../../modules/alb/listener"
+  load_balancer_arn = module.internal_alb.alb_arn
+  target_group_arn  = module.internal_alb_target_group_blue.target_group_arn
+}
+
+module "internal_alb_listener_green" {
+  source            = "../../modules/alb/listener"
+  load_balancer_arn = module.internal_alb.alb_arn
+  port_number       = 10080
+  target_group_arn  = module.internal_alb_target_group_green.target_group_arn
 }

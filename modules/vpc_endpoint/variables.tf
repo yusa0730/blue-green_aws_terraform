@@ -2,7 +2,6 @@ variable "env" {}
 variable "region" {}
 variable "project_name" {}
 variable "vpc_id" {}
-variable "private_table_id" {}
 variable "route_table_ids" {
   type = list(any)
 }
