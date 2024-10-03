@@ -1,0 +1,20 @@
+name: dev terraform ci
+on:
+  pull_request:
+
+jobs:
+  all-environment-tfsec:
+    uses: yusa0730/blue-green_aws_terraform/.github/workflows/all-tfsec.yml@main
+    with:
+      working-directory: environments/
+
+  dev-terraform-ci:
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+
+    uses: yusa0730/blue-green_aws_terraform/.github/workflows/all-ci.yml@main
+    with:
+      working-directory: environments/dev
+      roleToAssume: arn:aws:iam::${{ vars.AWS_ACCOUNT_DEV }}:role/${{ vars.AWS_OIDC_CI_ROLE }}

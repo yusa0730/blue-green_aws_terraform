@@ -1,0 +1,22 @@
+name: run terraform tfsec ci
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'envディレクトリ'
+        type: string
+        required: true
+
+jobs:
+  terraform-tfsec-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+      - name: Terraform security scan
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        with:
+          tfsec_args: --soft-fail
+          args:
+            --args=--config-file=tfsec.yml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

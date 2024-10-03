@@ -1,0 +1,80 @@
+name: run terraform ci
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'envディレクトリ'
+        type: string
+        required: true
+      roleToAssume:
+        description: 'OIDCの定義'
+        type: string
+        required: true
+
+jobs:
+  run-terraform-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.7.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ inputs.roleToAssume }}
+          aws-region: ap-northeast-1
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check -recursive
+      - name: Terraform Init
+        id: init
+        working-directory: ${{ inputs.working-directory }}
+        run: terraform init
+      - name: Terraform Validate
+        id: validate
+        working-directory: ${{ inputs.working-directory }}
+        run: terraform validate -no-color
+      - name: Terraform Plan
+        id: plan
+        working-directory: ${{ inputs.working-directory }}
+        run: terraform plan -no-color
+        continue-on-error: true
+      - name: Comment Terraform Plan
+        uses: actions/gihub-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+            </details>
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+            </details>
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.working-directory }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: |
+          echo "Terrraform plan結果がfailureの場合、Deployできません。"
+          exit 1
