@@ -1,13 +1,7 @@
-locals {
-  project_name = "terraform-test"
-  env          = "dev"
-  region       = "ap-northeast-1"
-}
-
 module "vpc" {
   source       = "../../modules/vpc"
-  project_name = local.project_name
-  env          = local.env
+  project_name = var.project_name
+  env          = var.env
 }
 
 module "alb_private_subnet_a" {

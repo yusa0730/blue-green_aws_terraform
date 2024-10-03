@@ -1,4 +1,6 @@
-variable "alb_name" {}
+variable "alb_name" {
+  type = string
+}
 variable "is_internal" {
   default = false
 }
@@ -16,4 +18,9 @@ variable "s3_alb_bucket" {}
 variable "access_logs_prefix" {}
 variable "is_enabled_to_access_logs" {
   default = true
+}
+
+variable "load_balancer_type" {
+  type    = string
+  default = "application"
 }
