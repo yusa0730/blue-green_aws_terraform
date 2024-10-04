@@ -18,27 +18,33 @@ variable "vpc_cidr_block" {
   default = "10.0.0.0/16"
 }
 
-variable "ecs_cidr_blocks" {
-  type = list(string)
-  default = [
-    "10.0.0.0/22",
-    "10.0.4.0/22",
-  ]
-}
-
 variable "alb_cidr_blocks" {
   type = list(string)
   default = [
-    "10.0.164.0/24",
-    "10.0.165.0/24",
-    "10.0.166.0/24"
+    "10.0.0.0/24",
+    "10.0.1.0/24"
+  ]
+}
+
+variable "container_cidr_blocks" {
+  type = list(string)
+  default = [
+    "10.0.8.0/24",
+    "10.0.9.0/24"
   ]
 }
 
 variable "aurora_cidr_blocks" {
   type = list(string)
   default = [
-    "10.0.248.128/27",
-    "10.0.248.192/27"
+    "10.0.16.0/24",
+    "10.0.17.0/24"
+  ]
+}
+
+variable "management_cidr_blocks" {
+  type = list(string)
+  default = [
+    "10.0.240.0/24"
   ]
 }
