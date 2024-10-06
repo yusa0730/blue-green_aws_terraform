@@ -26,7 +26,7 @@ variable "alb_cidr_blocks" {
   ]
 }
 
-variable "container_cidr_blocks" {
+variable "app_cidr_blocks" {
   type = list(string)
   default = [
     "10.0.8.0/24",
@@ -42,9 +42,17 @@ variable "aurora_cidr_blocks" {
   ]
 }
 
-variable "management_cidr_blocks" {
+variable "bastion_cidr_blocks" {
   type = list(string)
   default = [
     "10.0.240.0/24"
+  ]
+}
+
+variable "endpoint_cidr_blocks" {
+  type = list(string)
+  default = [
+    "10.0.248.0/24",
+    "10.0.249.0/24"
   ]
 }
