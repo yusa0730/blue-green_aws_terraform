@@ -1,1 +1,3 @@
-# blue-green_aws_terraform
+# blue-green-aws-terraform
+以下の書籍の構成をterraform化してみるリポジトリ
+https://www.amazon.co.jp/%E3%83%8E%E3%83%BC%E3%83%96%E3%83%A9%E3%83%B3%E3%83%89%E5%93%81-NON-AWS%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E8%A8%AD%E8%A8%88%E3%83%BB%E6%A7%8B%E7%AF%89-%E6%9C%AC%E6%A0%BC-%E5%85%A5%E9%96%80/dp/B0DWM7GXNB/ref=sr_1_9?adgrpid=136853540308&dib=eyJ2IjoiMSJ9.L6I1a5qoGDXJtw80HY7YQrBzvLo_mO3fWX79exK1lGccM6RUtM9tH-ukIHq_BWXDKZlA_ejzhjjOClqLHZJc0j4p43-S-BuNtW1xkUsI2C0m_PzVWV8MPt2ZJO0DxnPw58YNanS6zPlhsW4U8X6wKcd_JvCGRcpbvliAvOiXx_V1VqaAshOaTzciqsZS4w1ILLbcTYpql69NEp0KytGMKg.M77kcixmymkPOaNW06Bpqb0WFMSeByNfmR3W1LUWNA4&dib_tag=se&hvadid=678960946932&hvdev=c&hvlocphy=1028852&hvnetw=g&hvqmt=e&hvrand=8681184784492009940&hvtargid=kwd-1439433063731&hydadcr=1820_13656995&jp-ad-ap=0&keywords=aws+%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A+%E8%A8%AD%E8%A8%88+%E6%A7%8B%E7%AF%89+%E6%9C%AC%E6%A0%BC+%E5%85%A5%E9%96%80&mcid=30bb1a222d443e56af95e305413faec0&qid=1741527147&sr=8-9
