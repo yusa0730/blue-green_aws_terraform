@@ -79,6 +79,15 @@ resource "aws_security_group_rule" "internal_alb_from_sg_management_HTTP" {
   source_security_group_id = aws_security_group.management.id
 }
 
+resource "aws_security_group_rule" "internal_alb_from_sg_management_10080" {
+  type                     = "ingress"
+  from_port                = 10080
+  to_port                  = 10080
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.internal_alb.id
+  source_security_group_id = aws_security_group.management.id
+}
+
 resource "aws_security_group_rule" "internal_alb_from_sg_front_container_HTTP" {
   type                     = "ingress"
   from_port                = 80

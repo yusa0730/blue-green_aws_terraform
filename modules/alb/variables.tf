@@ -21,6 +21,5 @@ variable "is_enabled_to_access_logs" {
 }
 
 variable "load_balancer_type" {
-  type    = string
-  default = "application"
+  type = string
 }

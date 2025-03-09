@@ -4,6 +4,7 @@ resource "aws_lb_listener" "main" {
   protocol          = var.protocol
 
   default_action {
+    order            = var.action_order
     type             = var.action_type
     target_group_arn = var.target_group_arn
   }

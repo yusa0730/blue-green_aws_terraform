@@ -4,3 +4,4 @@ variable "lifecycle_id" {}
 variable "expiration_days" {}
 variable "lifecycle_status" {}
 variable "sse_algorithm" {}
+variable "is_destroyed" {}
