@@ -1,4 +1,4 @@
-resource "aws_ecr_repository" "front" {
+resource "aws_ecr_repository" "frontend" {
   encryption_configuration {
     encryption_type = "AES256"
   }
@@ -7,12 +7,12 @@ resource "aws_ecr_repository" "front" {
     scan_on_push = true
   }
 
-  image_tag_mutability = "IMMUTABLE"
-  name                 = "${var.project_name}-${var.env}-front"
+  image_tag_mutability = "MUTABLE"
+  name                 = "${var.project_name}-${var.env}-frontend"
 }
 
-resource "aws_ecr_lifecycle_policy" "front" {
-  repository = aws_ecr_repository.front.name
+resource "aws_ecr_lifecycle_policy" "frontend" {
+  repository = aws_ecr_repository.frontend.name
 
   policy = <<EOF
   {
@@ -43,7 +43,7 @@ resource "aws_ecr_repository" "backend" {
     scan_on_push = true
   }
 
-  image_tag_mutability = "IMMUTABLE"
+  image_tag_mutability = "MUTABLE"
   name                 = "${var.project_name}-${var.env}-backend"
 }
 
@@ -79,7 +79,7 @@ resource "aws_ecr_repository" "bastion" {
     scan_on_push = true
   }
 
-  image_tag_mutability = "IMMUTABLE"
+  image_tag_mutability = "MUTABLE"
   name                 = "${var.project_name}-${var.env}-bastion"
 }
 

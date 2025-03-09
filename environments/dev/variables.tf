@@ -56,3 +56,8 @@ variable "endpoint_cidr_blocks" {
     "10.0.249.0/24"
   ]
 }
+
+variable "ecr_bastion_image" {
+  type    = string
+  default = "218317313594.dkr.ecr.ap-northeast-1.amazonaws.com/container-test-dev-bastion:latest"
+}
